@@ -15,35 +15,44 @@ class PersonContentProvider : ContentProvider() {
 
     companion object {
         val uriMatcher = UriMatcher(UriMatcher.NO_MATCH)
-        const val AUTHORITY = "com.example.contentprovider_demo.provider"
+        const val AUTHORITY = "com.example.contentprovider_demo"
         const val PERSON_TABLE_NAME = "person_info"
         const val ID_PERSON_DATA = 1
         const val ID_PERSON_DATA_ITEM = 2
+
+
+    }
+
+    init {
+        uriMatcher.addURI(AUTHORITY,PERSON_TABLE_NAME,ID_PERSON_DATA);
+        uriMatcher.addURI(AUTHORITY,PERSON_TABLE_NAME +"/*", ID_PERSON_DATA_ITEM);
     }
 
     private lateinit var personDao: PersonDao
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         when (uriMatcher.match(uri)) {
             ID_PERSON_DATA -> {
-                if (context != null){
+                if (context != null) {
                     var id: Long = personDao.insert(Person.fromContentValues(values!!)) as Long
-                    if(id as Int != 0){
+                    if (id as Int != 0) {
                         context?.contentResolver?.notifyChange(uri, null)
                         return ContentUris.withAppendedId(uri, id)
                     }
+                    throw IllegalArgumentException("Failed")
+
                 }
+                throw IllegalArgumentException("Failed")
             }
 
             ID_PERSON_DATA_ITEM -> {
-                Toast.makeText(context, "INSERT Failed", Toast.LENGTH_LONG).show()
+                throw IllegalArgumentException("Failed")
             }
 
             else -> {
-                Toast.makeText(context, "Failed", Toast.LENGTH_LONG).show()
+                throw IllegalArgumentException("Failed")
             }
         }
     }
-
 
 
     override fun query(
@@ -61,15 +70,20 @@ class PersonContentProvider : ContentProvider() {
                     cursor.setNotificationUri(context?.contentResolver, uri)
                     return cursor
                 }
+                throw IllegalArgumentException("Failed")
+
             }
             else -> {
-                Toast.makeText(context, "Failed", Toast.LENGTH_LONG).show()
+                throw IllegalArgumentException("Failed")
             }
         }
     }
 
     override fun onCreate(): Boolean {
-        personDao = ApplicationDatabase.getInstance(context)?.personDao!!
+        Log.d("TAG", (context == null).toString())
+        context
+        val applicationDatabase = ApplicationDatabase.getInstance(context!!)
+        personDao = applicationDatabase?.personDao!!
         return false
     }
 
@@ -81,33 +95,33 @@ class PersonContentProvider : ContentProvider() {
     ): Int {
         when (uriMatcher.match(uri)) {
             ID_PERSON_DATA -> {
-                if (context != null){
+                if (context != null) {
                     var count: Long = personDao.update(Person.fromContentValues(values!!)) as Long
 
-                    if(count as Int != 0){
+                    if (count as Int != 0) {
                         context?.contentResolver?.notifyChange(uri, null)
                         return count
                     }
-                    throw IllegalArgumentException("Unknown URI:$uri")
-
                 }
+                throw IllegalArgumentException("Unknown URI:$uri")
             }
 
             ID_PERSON_DATA_ITEM -> {
-                Toast.makeText(context, "UPDATE Failed", Toast.LENGTH_LONG).show()
+                throw IllegalArgumentException("UPDATE Failed")
             }
 
             else -> {
-                Toast.makeText(context, "Failed", Toast.LENGTH_LONG).show()
+                throw IllegalArgumentException("Failed:$uri")
+
             }
         }
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        when(uriMatcher.match(uri)){
+        when (uriMatcher.match(uri)) {
             ID_PERSON_DATA -> throw IllegalArgumentException("CANNOT DELETE")
             ID_PERSON_DATA_ITEM -> {
-                if (context!= null){
+                if (context != null) {
                     var count = personDao.delete(ContentUris.parseId(uri))
                     context?.contentResolver?.notifyChange(uri, null)
                     return count

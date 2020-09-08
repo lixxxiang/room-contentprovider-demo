@@ -13,11 +13,9 @@ abstract class ApplicationDatabase : RoomDatabase() {
     companion object {
         private val DATABASE_NAME = "testdb"
         private var INSTANCE: ApplicationDatabase? = null
-        fun getInstance(context: Context?): ApplicationDatabase? {
+        fun getInstance(context: Context): ApplicationDatabase? {
             if (INSTANCE == null) {
-                INSTANCE =
-                    Room.databaseBuilder(context!!, ApplicationDatabase::class.java, DATABASE_NAME)
-                        .build()
+                INSTANCE = Room.databaseBuilder(context, ApplicationDatabase::class.java, DATABASE_NAME).build()
             }
             return INSTANCE
         }

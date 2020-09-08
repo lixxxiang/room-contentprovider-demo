@@ -4,22 +4,27 @@ import android.content.ContentValues
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.contentprovider_demo.MainActivity.Companion.PERSON_EMAIL_ADDRESS
+import com.example.contentprovider_demo.MainActivity.Companion.PERSON_GENDER
+import com.example.contentprovider_demo.MainActivity.Companion.PERSON_ID
+import com.example.contentprovider_demo.MainActivity.Companion.PERSON_NAME
 
 
 @Entity(tableName = "person_info")
 data class Person(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: Int = 0,
     @ColumnInfo(name = "name")
-    var name: String,
+    var name: String = "",
     @ColumnInfo(name = "gender")
-    var genter: String,
+    var genter: String = "",
     @ColumnInfo(name = "emailAddress")
-    var emailAddress: String
+    var emailAddress: String = ""
 ) {
+
     companion object {
         fun fromContentValues(contentValues: ContentValues): Person {
-            var person: Person = Person()
+            var person = Person()
             if (contentValues.containsKey(PERSON_ID)) {
                 person.id = contentValues.getAsInteger(PERSON_ID)
             } else if (contentValues.containsKey(PERSON_NAME)) {
